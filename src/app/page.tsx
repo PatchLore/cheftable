@@ -1,81 +1,27 @@
-"use client"
-
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import ChefTable from "@/components/chef-table"
-import VoiceChef from "@/components/voice-chef"
-import CoursePairing from "@/components/course-pairing"
-import RecipeCards from "@/components/recipe-cards"
-import { Button } from "@/components/ui/button"
-import Card from "@/components/ui/card"
-
-// Prevent static generation to ensure session is available
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-dynamic';
 
 export default function Home() {
-  const router = useRouter()
-  const [activeTab, setActiveTab] = useState("chef")
-
   return (
-    <div className="min-h-screen bg-bg">
-      {/* Navigation */}
-      <nav className="bg-s1/94 backdrop-blur-md border-b border-border sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="logo">
-              Mise <span>en Place</span>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="nav-pills flex gap-1">
-                <button
-                  onClick={() => setActiveTab("chef")}
-                  className={`npill ${activeTab === "chef" ? "active" : ""}`}
-                >
-                  Chef's Table
-                </button>
-                <button
-                  onClick={() => setActiveTab("voice")}
-                  className={`npill ${activeTab === "voice" ? "active" : ""}`}
-                >
-                  🎙 Voice Chef
-                </button>
-                <button
-                  onClick={() => setActiveTab("pairing")}
-                  className={`npill ${activeTab === "pairing" ? "active" : ""}`}
-                >
-                  Course Pairing
-                </button>
-                <button
-                  onClick={() => setActiveTab("cards")}
-                  className={`npill ${activeTab === "cards" ? "active" : ""}`}
-                >
-                  Recipe Cards
-                </button>
-              </div>
-              <div className="nav-right flex gap-2">
-                <Button 
-                  variant="outline" 
-                  className="btn-outline"
-                  onClick={() => window.open("https://t.me/MiseEnPlaceChef", "_blank")}
-                >
-                  ✈ Telegram
-                </Button>
-                <Button className="btn-primary">
-                  Pro — £4.99
-                </Button>
-              </div>
-            </div>
-          </div>
+    <div className="min-h-screen bg-[#0a0908] text-[#ede8e0] p-12">
+      <nav className="h-16 flex items-center justify-between border-b border-[#2e2b26] mb-12">
+        <div className="text-[#c9a227] font-serif text-xl font-bold tracking-widest">
+          Mise <span className="text-[#ede8e0] font-normal">en Place</span>
         </div>
       </nav>
-
-      {/* Main Content */}
       <main>
-        <ChefTable />
-        <VoiceChef />
-        <CoursePairing />
-        <RecipeCards />
+        <h1 className="text-4xl font-serif font-bold text-[#c9a227] mb-4">
+          Your AI Chef
+        </h1>
+        <p className="text-[#b8b0a4] mb-8">
+          Michelin-level recipes generated for your skill level.
+        </p>
+        <a 
+          href="/dashboard" 
+          className="bg-[#c9a227] text-[#0a0908] px-6 py-3 rounded font-bold text-xs tracking-widest uppercase inline-block"
+        >
+          Enter Kitchen →
+        </a>
       </main>
     </div>
-  )
+  );
 }
