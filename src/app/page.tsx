@@ -1,6 +1,14 @@
 export const dynamic = 'force-dynamic';
 
+import { useSession } from 'next-auth/react';
+
 export default function Home() {
+  const session = useSession()?.data;
+  
+  if (!session) {
+    return <div>Loading...</div>;
+  }
+  
   return (
     <div className="min-h-screen bg-[#0a0908] text-[#ede8e0] p-12">
       <nav className="h-16 flex items-center justify-between border-b border-[#2e2b26] mb-12">
