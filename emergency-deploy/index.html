@@ -1,0 +1,1488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mise en Place — Your AI Chef</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Outfit:wght@300;400;500;600;700&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0908;
+  --s1: #131110;
+  --s2: #1a1714;
+  --s3: #22201c;
+  --s4: #2c2924;
+  --border: #2e2b26;
+  --border2: #3d3930;
+  --gold: #c9a227;
+  --gold2: #e8be50;
+  --gold-dim: rgba(201,162,39,0.1);
+  --gold-glow: rgba(201,162,39,0.15);
+  --ember: #b84a2a;
+  --ember-dim: rgba(184,74,42,0.12);
+  --sage: #5c7a5a;
+  --sage-dim: rgba(92,122,90,0.12);
+  --sky: #3a7ab8;
+  --sky-dim: rgba(58,122,184,0.12);
+  --text: #ede8e0;
+  --text2: #b8b0a4;
+  --muted: #6e6860;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 300;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* GRAIN */
+body::after {
+  content:''; position:fixed; inset:0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events:none; z-index:9999; opacity:0.5;
+}
+
+/* ─── NAV ─────────────────────────────────── */
+nav {
+  height: 60px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 48px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(10,9,8,0.94);
+  backdrop-filter: blur(16px);
+  position: sticky; top:0; z-index:200;
+}
+
+.logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 19px; font-weight: 700; letter-spacing: 2px;
+  color: var(--gold);
+}
+.logo span { color: var(--text); font-weight: 400; }
+
+.nav-pills { display: flex; gap: 4px; }
+.npill {
+  padding: 6px 16px; border-radius: 20px;
+  font-size: 11px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase;
+  cursor: pointer; transition: all 0.2s; border: 1px solid transparent;
+  background: none; color: var(--muted); font-family: 'Outfit', sans-serif;
+}
+.npill:hover { color: var(--text2); }
+.npill.active { background: var(--gold-dim); border-color: var(--gold); color: var(--gold); }
+
+.nav-right { display: flex; gap: 10px; align-items: center; }
+.nav-btn {
+  padding: 7px 18px; border-radius: 3px;
+  font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+  cursor: pointer; transition: all 0.2s; font-family: 'Outfit', sans-serif;
+}
+.nav-btn.outline { background: none; border: 1px solid var(--border2); color: var(--muted); }
+.nav-btn.outline:hover { border-color: var(--text2); color: var(--text2); }
+.nav-btn.gold { background: var(--gold); border: none; color: #0a0908; }
+.nav-btn.gold:hover { background: var(--gold2); }
+
+/* ─── SECTIONS ────────────────────────────── */
+.section { padding: 52px 48px; display: none; }
+.section.active { display: block; }
+
+.sec-header { margin-bottom: 36px; }
+.sec-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(36px, 4vw, 56px); font-weight: 900;
+  line-height: 1.0; letter-spacing: -0.5px;
+}
+.sec-title em { font-style: italic; color: var(--gold); }
+.sec-sub {
+  font-family: 'Lora', serif; font-style: italic;
+  font-size: 15px; color: var(--muted); margin-top: 10px; line-height: 1.7;
+}
+
+/* ─── CONTROLS ────────────────────────────── */
+.ctrl-bar {
+  display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end;
+  background: var(--s1); border: 1px solid var(--border);
+  border-radius: 8px; padding: 24px 28px; margin-bottom: 32px;
+}
+.ctrl { display: flex; flex-direction: column; gap: 6px; }
+.ctrl label {
+  font-size: 9px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--muted);
+}
+.ctrl select, .ctrl input {
+  background: var(--s2); border: 1px solid var(--border2);
+  color: var(--text); font-family: 'Outfit', sans-serif;
+  font-size: 13px; padding: 9px 14px; outline: none;
+  border-radius: 4px; transition: border-color 0.2s; min-width: 145px;
+}
+.ctrl select:focus, .ctrl input:focus { border-color: var(--gold); }
+.ctrl select option { background: var(--s2); }
+
+.gen-btn {
+  padding: 10px 26px; background: var(--gold); color: #0a0908;
+  border: none; border-radius: 4px;
+  font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase;
+  cursor: pointer; transition: all 0.2s;
+  display: flex; align-items: center; gap: 8px; white-space: nowrap;
+}
+.gen-btn:hover { background: var(--gold2); }
+.gen-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ─── RECIPE GRID ─────────────────────────── */
+.r-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2px; }
+
+.r-card {
+  background: var(--s1); border: 1px solid var(--border);
+  padding: 26px; cursor: pointer; transition: all 0.22s;
+  position: relative; overflow: hidden;
+}
+.r-card:hover { background: var(--s2); border-color: var(--border2); }
+.r-card::after {
+  content:''; position:absolute; bottom:0; left:0; right:0; height:2px;
+  background: var(--gold); transform: scaleX(0); transition: transform 0.3s;
+}
+.r-card:hover::after { transform: scaleX(1); }
+
+.r-top { display: flex; justify-content: space-between; margin-bottom: 12px; }
+.r-cuisine { font-size: 9px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); }
+.r-stars { color: var(--gold); font-size: 10px; letter-spacing: 3px; }
+.r-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; line-height: 1.2; margin-bottom: 6px; }
+.r-sub { font-family: 'Lora', serif; font-style: italic; font-size: 12px; color: var(--muted); line-height: 1.5; margin-bottom: 16px; }
+.r-meta { display: flex; gap: 16px; margin-bottom: 14px; }
+.r-met { font-size: 11px; color: var(--text2); }
+.r-met b { color: var(--text); font-weight: 500; }
+.r-tech {
+  background: var(--gold-dim); border-left: 2px solid var(--gold);
+  padding: 8px 12px; font-size: 12px; color: var(--gold2);
+  border-radius: 0 4px 4px 0; margin-bottom: 14px;
+  font-family: 'Lora', serif; font-style: italic; line-height: 1.5;
+}
+.r-actions { display: flex; gap: 8px; }
+.r-btn {
+  flex: 1; padding: 9px; border-radius: 4px;
+  font-family: 'Outfit', sans-serif; font-size: 10px; font-weight: 500;
+  letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all 0.2s;
+}
+.r-btn.out { background: none; border: 1px solid var(--border2); color: var(--muted); }
+.r-btn.out:hover { border-color: var(--gold); color: var(--gold); }
+.r-btn.pri { background: var(--gold); border: none; color: #0a0908; font-weight: 700; }
+.r-btn.pri:hover { background: var(--gold2); }
+
+/* ─── VOICE AGENT ─────────────────────────── */
+#voiceSection {
+  display: none;
+}
+
+.voice-layout {
+  display: grid; grid-template-columns: 380px 1fr; gap: 2px; min-height: 600px;
+}
+
+/* Left: recipe context panel */
+.voice-recipe-panel {
+  background: var(--s1); border: 1px solid var(--border); border-radius: 8px 0 0 8px;
+  padding: 24px; overflow-y: auto; max-height: 700px;
+}
+
+.vrp-label {
+  font-size: 9px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 16px;
+}
+.vrp-title {
+  font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700;
+  margin-bottom: 8px; line-height: 1.2;
+}
+.vrp-step-list { list-style: none; margin-top: 16px; }
+.vrp-step {
+  display: flex; gap: 12px; padding: 10px 0;
+  border-bottom: 1px solid var(--border); cursor: pointer; transition: all 0.15s;
+}
+.vrp-step:last-child { border-bottom: none; }
+.vrp-step:hover { padding-left: 4px; }
+.vrp-step.active { padding-left: 4px; }
+.vrp-step-n {
+  width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; border: 1px solid var(--border2);
+  background: var(--s2); color: var(--muted);
+}
+.vrp-step.active .vrp-step-n { background: var(--gold); border-color: var(--gold); color: #0a0908; }
+.vrp-step.done .vrp-step-n { background: var(--sage); border-color: var(--sage); color: white; }
+.vrp-step-text { font-size: 12px; color: var(--text2); line-height: 1.5; }
+.vrp-step.active .vrp-step-text { color: var(--text); }
+
+/* Right: voice chat */
+.voice-chat-panel {
+  background: var(--s1); border: 1px solid var(--border); border-left: none;
+  border-radius: 0 8px 8px 0;
+  display: flex; flex-direction: column; max-height: 700px;
+}
+
+.vcp-header {
+  padding: 20px 24px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.vcp-header h3 { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; }
+.vcp-status {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 11px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: var(--muted);
+}
+.status-dot {
+  width: 8px; height: 8px; border-radius: 50%; background: var(--muted);
+  transition: background 0.3s;
+}
+.status-dot.listening {
+  background: var(--ember);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+.status-dot.thinking { background: var(--gold); animation: pulse 0.8s ease-in-out infinite; }
+.status-dot.speaking { background: var(--sage); animation: pulse 0.6s ease-in-out infinite; }
+
+@keyframes pulse {
+  0%,100% { opacity:1; transform:scale(1); }
+  50% { opacity:0.5; transform:scale(1.4); }
+}
+
+.vcp-messages {
+  flex: 1; overflow-y: auto; padding: 20px 24px;
+  display: flex; flex-direction: column; gap: 16px;
+  scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+}
+
+.msg {
+  max-width: 85%; animation: fadeSlide 0.3s ease;
+}
+@keyframes fadeSlide { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+.msg.user { align-self: flex-end; }
+.msg.ai { align-self: flex-start; }
+
+.msg-bubble {
+  padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.6;
+}
+.msg.user .msg-bubble { background: var(--gold-dim); border: 1px solid rgba(201,162,39,0.2); color: var(--text); border-radius: 12px 12px 2px 12px; }
+.msg.ai .msg-bubble { background: var(--s2); border: 1px solid var(--border2); color: var(--text2); border-radius: 12px 12px 12px 2px; }
+.msg.ai .msg-bubble strong { color: var(--gold); }
+
+.msg-time { font-size: 10px; color: var(--muted); margin-top: 4px; text-align: right; }
+.msg.ai .msg-time { text-align: left; }
+
+.typing-indicator {
+  display: flex; gap: 4px; padding: 14px 18px;
+  background: var(--s2); border: 1px solid var(--border2);
+  border-radius: 12px 12px 12px 2px; width: fit-content;
+}
+.typing-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--muted);
+  animation: typingBounce 1.2s ease-in-out infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typingBounce { 0%,60%,100% { transform:translateY(0); } 30% { transform:translateY(-6px); } }
+
+.vcp-input {
+  padding: 16px 20px; border-top: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 12px;
+}
+
+/* VOICE BUTTON */
+.voice-orb-wrap { display: flex; justify-content: center; align-items: center; gap: 16px; }
+
+.voice-orb {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, var(--s3), var(--s1));
+  border: 2px solid var(--border2); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; transition: all 0.3s;
+  position: relative;
+}
+.voice-orb::before {
+  content:''; position:absolute; inset:-4px; border-radius: 50%;
+  border: 1px solid transparent; transition: all 0.3s;
+}
+.voice-orb:hover { border-color: var(--gold); transform: scale(1.05); }
+.voice-orb.active {
+  background: radial-gradient(circle at 35% 35%, #3a1a0a, #1a0a04);
+  border-color: var(--ember);
+  box-shadow: 0 0 30px rgba(184,74,42,0.3);
+  animation: orbPulse 1.5s ease-in-out infinite;
+}
+.voice-orb.active::before { border-color: rgba(184,74,42,0.3); animation: orbRing 1.5s ease-in-out infinite; }
+@keyframes orbPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
+@keyframes orbRing { 0%,100%{transform:scale(1);opacity:0.6} 50%{transform:scale(1.2);opacity:0} }
+
+.voice-orb-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--muted);
+  text-align: center;
+}
+
+.text-input-row { display: flex; gap: 8px; }
+.text-input-row input {
+  flex: 1; background: var(--s2); border: 1px solid var(--border2);
+  color: var(--text); font-family: 'Outfit', sans-serif;
+  font-size: 13px; padding: 10px 14px; outline: none; border-radius: 4px;
+  transition: border-color 0.2s;
+}
+.text-input-row input:focus { border-color: var(--gold); }
+.text-input-row input::placeholder { color: var(--muted); }
+.send-btn {
+  padding: 10px 18px; background: var(--s3); border: 1px solid var(--border2);
+  color: var(--text2); border-radius: 4px; cursor: pointer; transition: all 0.2s;
+  font-size: 14px;
+}
+.send-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+.voice-select-prompt {
+  text-align: center; padding: 60px 40px; color: var(--muted);
+}
+.voice-select-prompt .big { font-size: 56px; margin-bottom: 16px; opacity: 0.3; }
+.voice-select-prompt h3 { font-family: 'Playfair Display', serif; font-size: 24px; color: var(--muted); margin-bottom: 8px; }
+.voice-select-prompt p { font-family: 'Lora', serif; font-style: italic; font-size: 14px; line-height: 1.7; max-width: 340px; margin: 0 auto 24px; }
+
+/* ─── COURSE PAIRING ──────────────────────── */
+.course-board {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 2px; margin-bottom: 32px;
+}
+
+.course-col {
+  background: var(--s1); border: 1px solid var(--border); border-radius: 4px;
+  overflow: hidden;
+}
+
+.course-col-header {
+  padding: 14px 20px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+.course-label {
+  font-size: 9px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+}
+.course-label.starter { color: var(--sage); }
+.course-label.main { color: var(--gold); }
+.course-label.dessert { color: var(--ember); }
+
+.course-icon { font-size: 18px; }
+
+.course-items { padding: 12px; min-height: 200px; }
+
+.course-item {
+  background: var(--s2); border: 1px solid var(--border2);
+  border-radius: 6px; padding: 14px 16px; margin-bottom: 8px;
+  cursor: pointer; transition: all 0.2s; position: relative;
+}
+.course-item:hover { border-color: var(--gold); background: var(--s3); }
+.course-item.selected { border-color: var(--gold); background: var(--gold-dim); }
+.course-item.selected::before {
+  content: '✦'; position: absolute; top: 10px; right: 12px;
+  color: var(--gold); font-size: 12px;
+}
+.ci-title { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.ci-desc { font-size: 11px; color: var(--muted); line-height: 1.4; }
+.ci-time { font-size: 10px; color: var(--text2); margin-top: 6px; font-weight: 500; }
+
+/* PAIRING ANALYSIS */
+.pairing-analysis {
+  background: var(--s1); border: 1px solid var(--border); border-radius: 8px;
+  padding: 28px 32px; margin-bottom: 24px; display: none;
+}
+.pa-title {
+  font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700;
+  margin-bottom: 8px; display: flex; align-items: center; gap: 12px;
+}
+.pa-score {
+  background: var(--gold-dim); border: 1px solid var(--gold);
+  color: var(--gold); font-family: 'Outfit', sans-serif;
+  font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 20px;
+  letter-spacing: 1px;
+}
+.pa-desc { font-family: 'Lora', serif; font-style: italic; font-size: 15px; color: var(--text2); line-height: 1.7; margin-bottom: 20px; }
+.pa-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.pa-insight {
+  background: var(--s2); border: 1px solid var(--border2); border-radius: 6px; padding: 14px;
+}
+.pa-insight-icon { font-size: 20px; margin-bottom: 8px; }
+.pa-insight-label { font-size: 9px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+.pa-insight-text { font-size: 12px; color: var(--text2); line-height: 1.5; }
+
+/* ─── RECIPE CARD GENERATOR ───────────────── */
+.card-gen-layout {
+  display: grid; grid-template-columns: 340px 1fr; gap: 32px; align-items: start;
+}
+
+.card-config {
+  background: var(--s1); border: 1px solid var(--border); border-radius: 8px; padding: 24px;
+}
+.card-config h3 {
+  font-size: 9px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 20px;
+}
+
+.style-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+.style-opt {
+  padding: 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s;
+  border: 1px solid var(--border2); text-align: center; background: var(--s2);
+}
+.style-opt:hover { border-color: var(--gold); }
+.style-opt.active { border-color: var(--gold); background: var(--gold-dim); }
+.style-opt-icon { font-size: 22px; margin-bottom: 4px; }
+.style-opt-name { font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--text2); }
+
+/* CARD PREVIEW AREA */
+.card-preview-area {
+  display: flex; flex-direction: column; gap: 16px; align-items: center;
+}
+
+/* The actual recipe card (rendered as HTML, then captured) */
+.recipe-card-output {
+  width: 560px; background: var(--s1);
+  border: 1px solid var(--border2); border-radius: 2px;
+  overflow: hidden; position: relative;
+  transition: all 0.4s;
+}
+
+/* Style: Dark Luxe (default) */
+.rco-dark {
+  background: #0e0c0a;
+  border-color: var(--gold);
+}
+.rco-dark .rco-top-bar { background: var(--gold); height: 4px; }
+.rco-dark .rco-cuisine { color: var(--gold); }
+.rco-dark .rco-title { color: #f0ebe0; }
+.rco-dark .rco-sub { color: #888; }
+.rco-dark .rco-divider { background: #2a2620; }
+.rco-dark .rco-meta-val { color: var(--gold); }
+.rco-dark .rco-meta-lbl { color: #555; }
+.rco-dark .rco-technique { background: rgba(201,162,39,0.07); border-left-color: var(--gold); color: #c8a84a; }
+.rco-dark .rco-ing-name { color: #d0c8be; }
+.rco-dark .rco-ing-amt { color: #555; }
+.rco-dark .rco-footer { background: #0a0908; border-top-color: #1a1714; color: #444; }
+
+/* Style: Cream Editorial */
+.rco-cream {
+  background: #f8f4ec;
+  border-color: #c8b898;
+}
+.rco-cream .rco-top-bar { background: #2a2218; height: 5px; }
+.rco-cream .rco-cuisine { color: #8a6a30; }
+.rco-cream .rco-title { color: #1a1410; font-family: 'Playfair Display', serif; }
+.rco-cream .rco-sub { color: #8a8078; }
+.rco-cream .rco-divider { background: #d8d0c0; }
+.rco-cream .rco-meta-val { color: #2a2218; }
+.rco-cream .rco-meta-lbl { color: #a09080; }
+.rco-cream .rco-technique { background: rgba(138,106,48,0.08); border-left-color: #8a6a30; color: #6a4a18; }
+.rco-cream .rco-ing-name { color: #2a2218; }
+.rco-cream .rco-ing-amt { color: #9a9080; }
+.rco-cream .rco-footer { background: #f0ece4; border-top-color: #d8d0c0; color: #b0a898; }
+
+/* Style: Minimal White */
+.rco-minimal {
+  background: #ffffff;
+  border-color: #e0e0e0;
+}
+.rco-minimal .rco-top-bar { background: #1a1a1a; height: 3px; }
+.rco-minimal .rco-cuisine { color: #888; }
+.rco-minimal .rco-title { color: #111; }
+.rco-minimal .rco-sub { color: #aaa; }
+.rco-minimal .rco-divider { background: #eee; }
+.rco-minimal .rco-meta-val { color: #111; }
+.rco-minimal .rco-meta-lbl { color: #bbb; }
+.rco-minimal .rco-technique { background: #f5f5f5; border-left-color: #333; color: #444; }
+.rco-minimal .rco-ing-name { color: #333; }
+.rco-minimal .rco-ing-amt { color: #aaa; }
+.rco-minimal .rco-footer { background: #fafafa; border-top-color: #eee; color: #ccc; }
+
+/* Style: Ember */
+.rco-ember {
+  background: #1a0c08;
+  border-color: var(--ember);
+}
+.rco-ember .rco-top-bar { background: var(--ember); height: 4px; }
+.rco-ember .rco-cuisine { color: #d46040; }
+.rco-ember .rco-title { color: #f0e0d8; }
+.rco-ember .rco-sub { color: #6a5048; }
+.rco-ember .rco-divider { background: #2a1810; }
+.rco-ember .rco-meta-val { color: #d46040; }
+.rco-ember .rco-meta-lbl { color: #5a4038; }
+.rco-ember .rco-technique { background: rgba(184,74,42,0.1); border-left-color: var(--ember); color: #d46040; }
+.rco-ember .rco-ing-name { color: #d0c0b8; }
+.rco-ember .rco-ing-amt { color: #5a4038; }
+.rco-ember .rco-footer { background: #140a06; border-top-color: #2a1810; color: #3a2820; }
+
+/* Card internal structure */
+.rco-top-bar { width: 100%; }
+.rco-body { padding: 32px 36px; }
+.rco-cuisine {
+  font-size: 9px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase;
+  margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+}
+.rco-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 38px; font-weight: 900; line-height: 1.0; margin-bottom: 8px;
+}
+.rco-sub {
+  font-family: 'Lora', serif; font-style: italic; font-size: 14px; line-height: 1.6; margin-bottom: 20px;
+}
+.rco-divider { height: 1px; margin-bottom: 20px; }
+.rco-meta-row { display: flex; justify-content: space-between; margin-bottom: 20px; }
+.rco-meta-item { text-align: center; }
+.rco-meta-val { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; display: block; line-height: 1; }
+.rco-meta-lbl { font-size: 8px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; display: block; }
+.rco-technique { padding: 10px 14px; border-left: 2px solid; border-radius: 0 4px 4px 0; font-family: 'Lora', serif; font-style: italic; font-size: 13px; line-height: 1.5; margin-bottom: 20px; }
+.rco-ing-section { }
+.rco-ing-label { font-size: 8px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: #666; margin-bottom: 12px; }
+.rco-ing-list { list-style: none; }
+.rco-ing-list li { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.rco-cream .rco-ing-list li { border-bottom-color: rgba(0,0,0,0.06); }
+.rco-minimal .rco-ing-list li { border-bottom-color: #f0f0f0; }
+.rco-ing-list li:last-child { border-bottom: none; }
+.rco-ing-name { font-size: 13px; }
+.rco-ing-amt { font-size: 11px; font-weight: 500; }
+.rco-footer { padding: 14px 36px; border-top: 1px solid; text-align: center; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; font-weight: 500; }
+
+.card-dl-btn {
+  width: 100%; max-width: 560px; padding: 14px;
+  background: var(--gold); border: none; color: #0a0908;
+  border-radius: 4px; font-family: 'Outfit', sans-serif;
+  font-size: 12px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+  cursor: pointer; transition: all 0.2s;
+}
+.card-dl-btn:hover { background: var(--gold2); }
+
+/* ─── SKELETON ────────────────────────────── */
+@keyframes sk { 0%{background-position:-600px 0} 100%{background-position:600px 0} }
+.sk {
+  background: linear-gradient(90deg, var(--s2) 25%, var(--s3) 50%, var(--s2) 75%);
+  background-size: 600px 100%; animation: sk 1.6s infinite; border-radius: 3px;
+}
+
+/* ─── SPINNER ─────────────────────────────── */
+@keyframes spin { to{transform:rotate(360deg)} }
+.spinner { width:14px; height:14px; border:2px solid rgba(10,9,8,0.3); border-top-color:#0a0908; border-radius:50%; animation:spin 0.7s linear infinite; display:inline-block; }
+
+/* ─── TOAST ───────────────────────────────── */
+.toast {
+  position:fixed; bottom:24px; right:24px;
+  background:var(--s2); border:1px solid var(--border2); color:var(--text);
+  padding:11px 20px; font-size:12px; font-weight:500; letter-spacing:1px;
+  border-radius:4px; opacity:0; transform:translateY(6px);
+  transition:all 0.3s; z-index:9998; pointer-events:none;
+}
+.toast.show { opacity:1; transform:translateY(0); }
+
+/* ─── EMPTY ───────────────────────────────── */
+.empty { padding:70px; text-align:center; }
+.empty-icon { font-size:48px; opacity:0.2; margin-bottom:14px; }
+.empty h3 { font-family:'Playfair Display',serif; font-size:24px; color:var(--muted); margin-bottom:8px; }
+.empty p { font-family:'Lora',serif; font-style:italic; font-size:13px; color:var(--muted); max-width:320px; margin:0 auto; line-height:1.7; }
+
+@media(max-width:900px) {
+  nav { padding:0 16px; }
+  .nav-right { display:none; }
+  .section { padding:32px 20px; }
+  .voice-layout { grid-template-columns:1fr; }
+  .voice-recipe-panel { display:none; }
+  .course-board { grid-template-columns:1fr; }
+  .card-gen-layout { grid-template-columns:1fr; }
+  .recipe-card-output { width:100%; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Mise <span>en Place</span></div>
+  <div class="nav-pills">
+    <button class="npill active" onclick="nav('chef')">Chef's Table</button>
+    <button class="npill" onclick="nav('voice')">🎙 Voice Chef</button>
+    <button class="npill" onclick="nav('pairing')">Course Pairing</button>
+    <button class="npill" onclick="nav('cards')">Recipe Cards</button>
+  </div>
+  <div class="nav-right">
+    <button class="nav-btn outline" onclick="showToast('Telegram: @MiseEnPlaceChef')">✈ Telegram</button>
+    <button class="nav-btn gold">Pro — £4.99</button>
+  </div>
+</nav>
+
+<!-- ═══ CHEF'S TABLE ═══ -->
+<div class="section active" id="chefSection">
+  <div class="sec-header">
+    <h1 class="sec-title">The <em>Chef's</em> Table</h1>
+    <p class="sec-sub">Michelin-level recipes generated for your skill, occasion, and cuisine — every time unique, every time technically precise.</p>
+  </div>
+
+  <div class="ctrl-bar">
+    <div class="ctrl">
+      <label>Cuisine</label>
+      <select id="cuisine">
+        <option value="varied">Surprise Me</option>
+        <option value="French">French</option>
+        <option value="Japanese">Japanese</option>
+        <option value="Italian">Italian</option>
+        <option value="Nordic">Nordic</option>
+        <option value="Modern British">Modern British</option>
+        <option value="Spanish">Spanish</option>
+      </select>
+    </div>
+    <div class="ctrl">
+      <label>Skill</label>
+      <select id="skill">
+        <option value="ambitious beginner">Beginner</option>
+        <option value="intermediate" selected>Intermediate</option>
+        <option value="advanced">Advanced</option>
+      </select>
+    </div>
+    <div class="ctrl">
+      <label>Occasion</label>
+      <select id="occasion">
+        <option value="dinner party">Dinner Party</option>
+        <option value="date night">Date Night</option>
+        <option value="weekend project">Weekend Project</option>
+        <option value="solo indulgence">Solo Indulgence</option>
+      </select>
+    </div>
+    <div class="ctrl">
+      <label>Count</label>
+      <select id="recCount">
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="6" selected>6</option>
+      </select>
+    </div>
+    <button class="gen-btn" id="chefGenBtn" onclick="generateChef()">Generate</button>
+  </div>
+  <div id="chefResults">
+    <div class="empty"><div class="empty-icon">✦</div><h3>Your table awaits</h3><p>Select your preferences and generate your personalised chef's menu.</p></div>
+  </div>
+</div>
+
+<!-- ═══ VOICE CHEF ═══ -->
+<div class="section" id="voiceSection">
+  <div class="sec-header">
+    <h1 class="sec-title"><em>Voice</em> Chef</h1>
+    <p class="sec-sub">Your AI sous-chef. Ask questions while you cook. It knows your recipe, your current step, and how to guide you through it.</p>
+  </div>
+
+  <div id="voiceNoRecipe">
+    <div class="voice-select-prompt">
+      <div class="big">🎙</div>
+      <h3>Generate a recipe first</h3>
+      <p>Head to the Chef's Table, generate a recipe, then click "Voice Cook" to activate your AI kitchen assistant.</p>
+      <button class="gen-btn" style="margin:0 auto" onclick="nav('chef')">Go to Chef's Table →</button>
+    </div>
+  </div>
+
+  <div class="voice-layout" id="voiceLayout" style="display:none">
+    <div class="voice-recipe-panel">
+      <div class="vrp-label">Current Recipe</div>
+      <div class="vrp-title" id="vrpTitle">—</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:4px" id="vrpMeta"></div>
+      <div style="height:1px;background:var(--border);margin:16px 0"></div>
+      <div class="vrp-label">Steps</div>
+      <ul class="vrp-step-list" id="vrpStepList"></ul>
+    </div>
+
+    <div class="voice-chat-panel">
+      <div class="vcp-header">
+        <h3>Kitchen Assistant</h3>
+        <div class="vcp-status">
+          <div class="status-dot" id="statusDot"></div>
+          <span id="statusText">Ready</span>
+        </div>
+      </div>
+      <div class="vcp-messages" id="vcpMessages"></div>
+      <div class="vcp-input">
+        <div class="voice-orb-wrap">
+          <div>
+            <div class="voice-orb" id="voiceOrb" onclick="toggleVoice()">🎙</div>
+            <div class="voice-orb-label" id="voiceOrbLabel">Tap to speak</div>
+          </div>
+        </div>
+        <div class="text-input-row">
+          <input type="text" id="chatInput" placeholder="Or type your question here..." onkeydown="if(event.key==='Enter')sendChat()">
+          <button class="send-btn" onclick="sendChat()">↑</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ COURSE PAIRING ═══ -->
+<div class="section" id="pairingSection">
+  <div class="sec-header">
+    <h1 class="sec-title">Course <em>Pairing</em></h1>
+    <p class="sec-sub">Generate a complete dinner menu — starter, main, dessert — with AI analysis of how the courses flow, balance, and complement each other.</p>
+  </div>
+
+  <div class="ctrl-bar">
+    <div class="ctrl">
+      <label>Cuisine</label>
+      <select id="pCuisine">
+        <option value="coherent mixed">Coherent Mix</option>
+        <option value="French">All French</option>
+        <option value="Italian">All Italian</option>
+        <option value="Japanese">All Japanese</option>
+        <option value="Modern British">Modern British</option>
+      </select>
+    </div>
+    <div class="ctrl">
+      <label>Occasion</label>
+      <select id="pOccasion">
+        <option value="elegant dinner party">Dinner Party</option>
+        <option value="romantic date night">Date Night</option>
+        <option value="relaxed Sunday lunch">Sunday Lunch</option>
+        <option value="celebration">Celebration</option>
+      </select>
+    </div>
+    <div class="ctrl">
+      <label>Dietary</label>
+      <select id="pDiet">
+        <option value="none">No restrictions</option>
+        <option value="vegetarian">Vegetarian</option>
+        <option value="pescatarian">Pescatarian</option>
+        <option value="gluten-free">Gluten-free</option>
+      </select>
+    </div>
+    <button class="gen-btn" id="pairingGenBtn" onclick="generatePairing()">Generate Menu</button>
+  </div>
+
+  <div id="pairingResults">
+    <div class="empty"><div class="empty-icon">🍽</div><h3>Design your menu</h3><p>Generate a complete starter, main and dessert with pairing analysis — flavour progression, balance, and what ties it all together.</p></div>
+  </div>
+</div>
+
+<!-- ═══ RECIPE CARDS ═══ -->
+<div class="section" id="cardsSection">
+  <div class="sec-header">
+    <h1 class="sec-title">Recipe <em>Cards</em></h1>
+    <p class="sec-sub">Beautiful shareable cards — download as PNG, post to Instagram, print and frame. Each card generated fresh, never a template.</p>
+  </div>
+
+  <div class="card-gen-layout">
+    <div class="card-config">
+      <h3>Card Style</h3>
+      <div class="style-grid" id="styleGrid">
+        <div class="style-opt active" data-style="dark" onclick="setStyle(this)"><div class="style-opt-icon">🖤</div><div class="style-opt-name">Dark Luxe</div></div>
+        <div class="style-opt" data-style="cream" onclick="setStyle(this)"><div class="style-opt-icon">📜</div><div class="style-opt-name">Cream Edit.</div></div>
+        <div class="style-opt" data-style="minimal" onclick="setStyle(this)"><div class="style-opt-icon">⬜</div><div class="style-opt-name">Minimal</div></div>
+        <div class="style-opt" data-style="ember" onclick="setStyle(this)"><div class="style-opt-icon">🔥</div><div class="style-opt-name">Ember</div></div>
+      </div>
+
+      <h3 style="margin-top:20px">Generate Recipe</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px">
+        <div class="ctrl">
+          <label>Dish Type</label>
+          <select id="cardDishType">
+            <option value="any Michelin-worthy dish">Any</option>
+            <option value="elegant seafood main">Seafood</option>
+            <option value="classic French">French Classic</option>
+            <option value="modern vegetarian">Modern Vegetarian</option>
+            <option value="Japanese-inspired">Japanese</option>
+          </select>
+        </div>
+        <button class="gen-btn" style="width:100%;justify-content:center" id="cardGenBtn" onclick="generateCard()">Generate Card</button>
+      </div>
+
+      <div style="height:1px;background:var(--border);margin:20px 0"></div>
+      <h3>Or use saved recipe</h3>
+      <div id="savedRecipeList" style="margin-top:12px">
+        <p style="font-size:12px;color:var(--muted);font-family:Lora,serif;font-style:italic">Generate recipes in Chef's Table first — they'll appear here.</p>
+      </div>
+    </div>
+
+    <div class="card-preview-area" id="cardPreviewArea">
+      <div class="empty" style="width:100%">
+        <div class="empty-icon">🎨</div>
+        <h3>Preview appears here</h3>
+        <p>Generate a recipe or select one from your saved list to see the card.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────────────────────
+let allRecipes = [];
+let voiceRecipe = null;
+let voiceStep = 0;
+let recognition = null;
+let isListening = false;
+let isSpeaking = false;
+let cardStyle = 'dark';
+let cardRecipe = null;
+let conversationHistory = [];
+
+// ── NAV ───────────────────────────────────────────────────────────────────
+function nav(s) {
+  ['chef','voice','pairing','cards'].forEach(id => {
+    document.getElementById(id+'Section').classList.toggle('active', id===s);
+  });
+  document.querySelectorAll('.npill').forEach((p,i) => p.classList.toggle('active', ['chef','voice','pairing','cards'][i]===s));
+  if(s==='voice') checkVoiceReady();
+  if(s==='cards') updateSavedRecipeList();
+}
+
+// ── CHEF GENERATOR ────────────────────────────────────────────────────────
+async function generateChef() {
+  const cuisine = document.getElementById('cuisine').value;
+  const skill = document.getElementById('skill').value;
+  const occ = document.getElementById('occasion').value;
+  const count = document.getElementById('recCount').value;
+  const btn = document.getElementById('chefGenBtn');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Generating...';
+  showSkel('chefResults', parseInt(count));
+
+  const prompt = `Generate ${count} Michelin-quality recipes for a ${skill} cooking a ${occ}. Cuisine: ${cuisine}.
+
+Return JSON array, each item:
+- title, subtitle (poetic 1-line), cuisine, stars (1-3), difficulty ("Approachable"|"Intermediate"|"Advanced")
+- totalTime (number, minutes), serves (number), emoji
+- keyTechnique (2 sentences: what it is + why it elevates this dish)
+- chefTip (1 sharp insider sentence)
+- ingredients: [{name, amount}] (8-12 items)
+- steps: [{text (2-4 sentences, precise), stage, timerMinutes (or null), sensoryCues:[{type:"sight"|"sound"|"smell"|"touch", cue}]}]
+
+Return ONLY valid JSON array.`;
+
+  try {
+    const r = await callClaude(prompt);
+    allRecipes = JSON.parse(r.replace(/```json|```/g,'').trim());
+  } catch(e) { allRecipes = getDemoRecipes(); }
+
+  renderChefCards();
+  btn.disabled = false; btn.innerHTML = 'Generate';
+}
+
+function renderChefCards() {
+  const grid = document.createElement('div');
+  grid.className = 'r-grid';
+  allRecipes.forEach((r,i) => {
+    const el = document.createElement('div');
+    el.className = 'r-card';
+    el.innerHTML = `
+      <div class="r-top"><div class="r-cuisine">${r.cuisine}</div><div class="r-stars">${'✦'.repeat(r.stars||1)}</div></div>
+      <div class="r-title">${r.emoji||''} ${r.title}</div>
+      <div class="r-sub">${r.subtitle}</div>
+      <div class="r-meta">
+        <span class="r-met">⏱ <b>${r.totalTime}min</b></span>
+        <span class="r-met">👥 <b>${r.serves}</b></span>
+        <span class="r-met">📊 <b>${r.difficulty}</b></span>
+      </div>
+      <div class="r-tech">🔪 ${r.keyTechnique}</div>
+      <div class="r-actions">
+        <button class="r-btn out" onclick="startVoiceCook(${i})">🎙 Voice Cook</button>
+        <button class="r-btn pri" onclick="makeCard(${i})">🎨 Make Card</button>
+      </div>`;
+    grid.appendChild(el);
+  });
+  document.getElementById('chefResults').innerHTML = '';
+  document.getElementById('chefResults').appendChild(grid);
+  updateSavedRecipeList();
+}
+
+// ── VOICE CHEF ────────────────────────────────────────────────────────────
+function startVoiceCook(i) {
+  voiceRecipe = allRecipes[i];
+  voiceStep = 0;
+  conversationHistory = [];
+  nav('voice');
+}
+
+function checkVoiceReady() {
+  const hasRecipe = !!voiceRecipe;
+  document.getElementById('voiceNoRecipe').style.display = hasRecipe ? 'none' : 'block';
+  document.getElementById('voiceLayout').style.display = hasRecipe ? 'grid' : 'none';
+  if (hasRecipe) buildVoicePanel();
+}
+
+function buildVoicePanel() {
+  document.getElementById('vrpTitle').textContent = voiceRecipe.title;
+  document.getElementById('vrpMeta').textContent = `${voiceRecipe.totalTime}min · Serves ${voiceRecipe.serves} · ${voiceRecipe.difficulty}`;
+
+  const stepList = document.getElementById('vrpStepList');
+  stepList.innerHTML = (voiceRecipe.steps||[]).map((s,i) => `
+    <li class="vrp-step ${i===voiceStep?'active':''}" id="vstep-${i}" onclick="setVoiceStep(${i})">
+      <div class="vrp-step-n">${i+1}</div>
+      <div class="vrp-step-text">${(s.text||s).substring(0,80)}...</div>
+    </li>`).join('');
+
+  document.getElementById('vcpMessages').innerHTML = '';
+  addMsg('ai', `I'm your kitchen assistant for <strong>${voiceRecipe.title}</strong>. We have ${voiceRecipe.steps?.length} steps. Ask me anything — what's happening at each stage, what to watch for, timings, substitutions. Ready to begin?`);
+}
+
+function setVoiceStep(i) {
+  voiceStep = i;
+  document.querySelectorAll('.vrp-step').forEach((el,j) => {
+    el.classList.toggle('active', j===i);
+    if(j<i) el.classList.add('done');
+    else el.classList.remove('done');
+  });
+}
+
+// Web Speech API
+function toggleVoice() {
+  if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+    showToast('Voice not supported in this browser — use Chrome');
+    return;
+  }
+  if (isListening) { stopListening(); return; }
+  startListening();
+}
+
+function startListening() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SpeechRecognition();
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.lang = 'en-GB';
+
+  recognition.onstart = () => {
+    isListening = true;
+    document.getElementById('voiceOrb').classList.add('active');
+    document.getElementById('voiceOrbLabel').textContent = 'Listening...';
+    setStatus('listening', 'Listening');
+  };
+
+  recognition.onresult = (e) => {
+    const transcript = e.results[0][0].transcript;
+    stopListening();
+    addMsg('user', transcript);
+    askChefAI(transcript);
+  };
+
+  recognition.onerror = () => {
+    stopListening();
+    showToast('Could not hear you — try the text input below');
+  };
+
+  recognition.onend = () => { if(isListening) stopListening(); };
+  recognition.start();
+}
+
+function stopListening() {
+  isListening = false;
+  if(recognition) recognition.stop();
+  document.getElementById('voiceOrb').classList.remove('active');
+  document.getElementById('voiceOrbLabel').textContent = 'Tap to speak';
+  setStatus('idle', 'Ready');
+}
+
+async function sendChat() {
+  const inp = document.getElementById('chatInput');
+  const msg = inp.value.trim();
+  if (!msg) return;
+  inp.value = '';
+  addMsg('user', msg);
+  await askChefAI(msg);
+}
+
+async function askChefAI(question) {
+  setStatus('thinking', 'Thinking...');
+  showTyping();
+
+  const currentStep = voiceRecipe.steps?.[voiceStep];
+  const systemCtx = `You are a Michelin-trained kitchen assistant helping someone cook "${voiceRecipe.title}". 
+Current step ${voiceStep+1} of ${voiceRecipe.steps?.length}: "${currentStep?.text || currentStep}"
+Full recipe context: ${JSON.stringify({ingredients:voiceRecipe.ingredients, steps:voiceRecipe.steps?.map(s=>s.text||s)})}
+
+Rules:
+- Keep answers SHORT (2-4 sentences max) — they are cooking, not reading
+- Be specific to THIS recipe and THIS step
+- Use sensory language: what to see, hear, smell, feel
+- If they ask about the next step, describe step ${voiceStep+2} if it exists
+- If they say "done" or "next step" or "move on", confirm and advance (just say "Moving to step X: [brief preview]")
+- Mention temperatures, times, textures precisely`;
+
+  conversationHistory.push({role:'user', content: question});
+
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({
+        model:"claude-sonnet-4-20250514", max_tokens:1000,
+        system: systemCtx,
+        messages: conversationHistory.slice(-6)
+      })
+    });
+    const data = await res.json();
+    const reply = data.content?.find(b=>b.type==='text')?.text || "I didn't catch that — try asking again.";
+    conversationHistory.push({role:'assistant', content:reply});
+
+    hideTyping();
+    addMsg('ai', reply);
+    setStatus('idle', 'Ready');
+
+    // Auto-advance step if they said "done/next"
+    if (/\b(done|next|finished|ready|move on|next step)\b/i.test(question)) {
+      if (voiceStep < (voiceRecipe.steps?.length||0) - 1) {
+        setVoiceStep(voiceStep + 1);
+      }
+    }
+
+    // TTS
+    if ('speechSynthesis' in window) {
+      const clean = reply.replace(/<[^>]+>/g,'');
+      const utt = new SpeechSynthesisUtterance(clean);
+      utt.rate = 0.95; utt.pitch = 1.0;
+      setStatus('speaking', 'Speaking');
+      utt.onend = () => setStatus('idle', 'Ready');
+      window.speechSynthesis.speak(utt);
+    }
+  } catch(e) {
+    hideTyping();
+    addMsg('ai', "Sorry, I lost connection to the kitchen. Try your question again.");
+    setStatus('idle', 'Ready');
+  }
+}
+
+function addMsg(role, html) {
+  const msgs = document.getElementById('vcpMessages');
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  const now = new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  div.innerHTML = `<div class="msg-bubble">${html}</div><div class="msg-time">${now}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function showTyping() {
+  const msgs = document.getElementById('vcpMessages');
+  const div = document.createElement('div');
+  div.className = 'msg ai'; div.id = 'typingIndicator';
+  div.innerHTML = `<div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function hideTyping() {
+  document.getElementById('typingIndicator')?.remove();
+}
+
+function setStatus(state, label) {
+  const dot = document.getElementById('statusDot');
+  dot.className = 'status-dot ' + state;
+  document.getElementById('statusText').textContent = label;
+}
+
+// ── COURSE PAIRING ────────────────────────────────────────────────────────
+async function generatePairing() {
+  const cuisine = document.getElementById('pCuisine').value;
+  const occ = document.getElementById('pOccasion').value;
+  const diet = document.getElementById('pDiet').value;
+  const btn = document.getElementById('pairingGenBtn');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Designing menu...';
+  document.getElementById('pairingResults').innerHTML = '<div class="empty"><div class="empty-icon" style="animation:spin 1s linear infinite;display:inline-block">✦</div></div>';
+
+  const prompt = `Design a complete ${cuisine} dinner menu for a ${occ}${diet!=='none'?', '+diet+' diet':''}.
+
+Return JSON with:
+- menuName: evocative name for the overall menu
+- menuDescription: 2-sentence narrative about the flavour journey of this menu
+- pairingScore: number 1-100 (how well the courses pair)
+- pairingReason: 2-sentence explanation of WHY these courses work together (flavour arcs, texture contrast, richness balance)
+- flavorJourney: 1 sentence describing the progression from first bite to last
+- proteinBalance: 1 sentence on protein variety
+- richnessNote: 1 sentence on how richness is managed across courses
+- starter: {title, subtitle, cuisine, emoji, prepTime (num), cookTime (num), serves (num), description, ingredients:[{name,amount}], steps:[string]}
+- main: {same fields}
+- dessert: {same fields}
+
+Return ONLY valid JSON object.`;
+
+  try {
+    const r = await callClaude(prompt);
+    const menu = JSON.parse(r.replace(/```json|```/g,'').trim());
+    renderPairing(menu);
+  } catch(e) {
+    renderPairing(getDemoMenu());
+  }
+
+  btn.disabled = false; btn.innerHTML = 'Generate Menu';
+}
+
+function renderPairing(menu) {
+  const container = document.createElement('div');
+
+  // Analysis banner
+  const analysis = document.createElement('div');
+  analysis.className = 'pairing-analysis';
+  analysis.style.display = 'block';
+  analysis.innerHTML = `
+    <div class="pa-title">
+      ${menu.menuName}
+      <span class="pa-score">Pairing ${menu.pairingScore}/100</span>
+    </div>
+    <div class="pa-desc">${menu.menuDescription}</div>
+    <div class="pa-grid">
+      <div class="pa-insight">
+        <div class="pa-insight-icon">🌊</div>
+        <div class="pa-insight-label">Flavour Journey</div>
+        <div class="pa-insight-text">${menu.flavorJourney}</div>
+      </div>
+      <div class="pa-insight">
+        <div class="pa-insight-icon">⚖️</div>
+        <div class="pa-insight-label">Richness Balance</div>
+        <div class="pa-insight-text">${menu.richnessNote}</div>
+      </div>
+      <div class="pa-insight">
+        <div class="pa-insight-icon">🥩</div>
+        <div class="pa-insight-label">Protein Arc</div>
+        <div class="pa-insight-text">${menu.proteinBalance}</div>
+      </div>
+    </div>`;
+  container.appendChild(analysis);
+
+  // Course board
+  const board = document.createElement('div');
+  board.className = 'course-board';
+
+  const courses = [
+    {key:'starter', label:'Starter', icon:'🥗', cls:'starter'},
+    {key:'main', label:'Main Course', icon:'🍽', cls:'main'},
+    {key:'dessert', label:'Dessert', icon:'🍮', cls:'dessert'}
+  ];
+
+  courses.forEach(c => {
+    const dish = menu[c.key];
+    if (!dish) return;
+    const col = document.createElement('div');
+    col.className = 'course-col';
+    col.innerHTML = `
+      <div class="course-col-header">
+        <span class="course-label ${c.cls}">${c.label}</span>
+        <span class="course-icon">${c.icon}</span>
+      </div>
+      <div class="course-items">
+        <div class="course-item selected">
+          <div class="ci-title">${dish.emoji||''} ${dish.title}</div>
+          <div class="ci-desc">${dish.subtitle || dish.description?.substring(0,80)||''}</div>
+          <div class="ci-time">⏱ ${(dish.prepTime||0)+(dish.cookTime||0)}min · Serves ${dish.serves}</div>
+        </div>
+      </div>`;
+    board.appendChild(col);
+  });
+  container.appendChild(board);
+
+  // Action buttons
+  const actions = document.createElement('div');
+  actions.style.cssText = 'display:flex;gap:12px;margin-top:8px';
+  actions.innerHTML = `
+    <button class="gen-btn" onclick="exportMenuCard()">🎨 Download Menu Card</button>
+    <button class="gen-btn" style="background:var(--s3);color:var(--text2);border:1px solid var(--border2)" onclick="generatePairing()">↺ Regenerate</button>`;
+  container.appendChild(actions);
+
+  document.getElementById('pairingResults').innerHTML = '';
+  document.getElementById('pairingResults').appendChild(container);
+}
+
+// ── RECIPE CARD GENERATOR ─────────────────────────────────────────────────
+function setStyle(el) {
+  document.querySelectorAll('.style-opt').forEach(o => o.classList.remove('active'));
+  el.classList.add('active');
+  cardStyle = el.dataset.style;
+  if (cardRecipe) renderCardPreview(cardRecipe);
+}
+
+function makeCard(i) {
+  cardRecipe = allRecipes[i];
+  nav('cards');
+  renderCardPreview(cardRecipe);
+}
+
+async function generateCard() {
+  const type = document.getElementById('cardDishType').value;
+  const btn = document.getElementById('cardGenBtn');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+
+  const prompt = `Generate ONE ${type} recipe. Return JSON:
+- title, subtitle (poetic), cuisine, stars (1-3), totalTime (num), serves (num), emoji
+- keyTechnique (1-2 sentences)
+- chefTip (1 sentence)
+- ingredients: [{name, amount}] (max 10)
+Return ONLY valid JSON object.`;
+
+  try {
+    const r = await callClaude(prompt);
+    cardRecipe = JSON.parse(r.replace(/```json|```/g,'').trim());
+  } catch(e) {
+    cardRecipe = getDemoRecipes()[0];
+  }
+
+  renderCardPreview(cardRecipe);
+  btn.disabled = false; btn.innerHTML = 'Generate Card';
+}
+
+function renderCardPreview(recipe) {
+  const styleClass = {dark:'rco-dark', cream:'rco-cream', minimal:'rco-minimal', ember:'rco-ember'}[cardStyle] || 'rco-dark';
+
+  const ingHTML = (recipe.ingredients||[]).slice(0,8).map(i =>
+    `<li><span class="rco-ing-name">${i.name}</span><span class="rco-ing-amt">${i.amount}</span></li>`
+  ).join('');
+
+  const stars = '✦'.repeat(recipe.stars||1);
+
+  const card = document.createElement('div');
+  card.className = `recipe-card-output ${styleClass}`;
+  card.id = 'liveCard';
+  card.innerHTML = `
+    <div class="rco-top-bar"></div>
+    <div class="rco-body">
+      <div class="rco-cuisine">${stars} ${recipe.cuisine || 'Fine Dining'}</div>
+      <div class="rco-title">${recipe.emoji||''} ${recipe.title}</div>
+      <div class="rco-sub">${recipe.subtitle || ''}</div>
+      <div class="rco-divider"></div>
+      <div class="rco-meta-row">
+        <div class="rco-meta-item"><span class="rco-meta-val">${recipe.totalTime||45}</span><span class="rco-meta-lbl">Minutes</span></div>
+        <div class="rco-meta-item"><span class="rco-meta-val">${recipe.serves||2}</span><span class="rco-meta-lbl">Serves</span></div>
+        <div class="rco-meta-item"><span class="rco-meta-val">${recipe.stars||1}★</span><span class="rco-meta-lbl">Equiv.</span></div>
+      </div>
+      <div class="rco-technique">🔪 ${recipe.keyTechnique||''}</div>
+      <div class="rco-ing-section">
+        <div class="rco-ing-label">Ingredients</div>
+        <ul class="rco-ing-list">${ingHTML}</ul>
+      </div>
+    </div>
+    <div class="rco-footer">Mise en Place &nbsp;·&nbsp; Restaurant Quality at Home</div>`;
+
+  const area = document.getElementById('cardPreviewArea');
+  area.innerHTML = '';
+  area.appendChild(card);
+
+  const dlBtn = document.createElement('button');
+  dlBtn.className = 'card-dl-btn';
+  dlBtn.textContent = '⬇ Download Card as PNG';
+  dlBtn.onclick = () => downloadCard(recipe);
+  area.appendChild(dlBtn);
+}
+
+async function downloadCard(recipe) {
+  // Canvas render
+  const canvas = document.createElement('canvas');
+  const W = 840, H = 1120;
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  const styles = {
+    dark:    {bg:'#0e0c0a', surface:'#161310', accent:'#c9a227', text:'#f0ebe0', muted:'#6e6860', divider:'#2a2620', footerBg:'#0a0908'},
+    cream:   {bg:'#f8f4ec', surface:'#f0ece4', accent:'#8a6a30', text:'#1a1410', muted:'#9a9080', divider:'#d8d0c0', footerBg:'#f0ece4'},
+    minimal: {bg:'#ffffff', surface:'#f8f8f8', accent:'#1a1a1a', text:'#111111', muted:'#aaaaaa', divider:'#eeeeee', footerBg:'#fafafa'},
+    ember:   {bg:'#1a0c08', surface:'#220e08', accent:'#b84a2a', text:'#f0e0d8', muted:'#6a5048', divider:'#2a1810', footerBg:'#140a06'}
+  };
+  const s = styles[cardStyle] || styles.dark;
+
+  ctx.fillStyle = s.bg;
+  ctx.fillRect(0,0,W,H);
+
+  // Top accent
+  ctx.fillStyle = s.accent;
+  ctx.fillRect(0,0,W,6);
+
+  // Subtle grid
+  ctx.strokeStyle = cardStyle==='minimal'?'rgba(0,0,0,0.04)':cardStyle==='cream'?'rgba(0,0,0,0.04)':'rgba(255,255,255,0.025)';
+  ctx.lineWidth=0.5;
+  for(let x=0;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=0;y<H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+
+  // Stars + cuisine
+  ctx.fillStyle = s.accent;
+  ctx.font = '500 11px Outfit, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText(`${'✦'.repeat(recipe.stars||1)}  ${(recipe.cuisine||'Fine Dining').toUpperCase()}`, 52, 66);
+
+  // Title
+  ctx.fillStyle = s.text;
+  ctx.font = `900 ${recipe.title.length > 20 ? '54px' : '68px'} "Playfair Display", serif`;
+  const tLines = wrapText(ctx, (recipe.emoji||'') + ' ' + recipe.title, W-104, recipe.title.length>20?54:68);
+  tLines.forEach((l,i) => {
+    ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+    ctx.fillText(l, 52, 126 + i*72);
+  });
+
+  // Subtitle
+  const subY = 126 + tLines.length*72 + 4;
+  ctx.fillStyle = s.muted;
+  ctx.font = 'italic 400 16px Lora, serif';
+  const subLines = wrapText(ctx, recipe.subtitle||'', W-104, 16);
+  subLines.forEach((l,i) => ctx.fillText(l, 52, subY + i*24));
+
+  // Divider
+  const divY = subY + subLines.length*24 + 24;
+  ctx.fillStyle = s.divider;
+  ctx.fillRect(52, divY, W-104, 1);
+
+  // Meta
+  const metaY = divY + 28;
+  const metas = [{v:String(recipe.totalTime||45),l:'MINUTES'},{v:String(recipe.serves||2),l:'SERVES'},{v:(recipe.stars||1)+'★',l:'EQUIV.'}];
+  const mw = (W-104)/3;
+  metas.forEach((m,i) => {
+    ctx.fillStyle = s.accent;
+    ctx.font = '700 36px "Playfair Display", serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(m.v, 52+mw*i+mw/2, metaY+22);
+    ctx.fillStyle = s.muted;
+    ctx.font = '600 9px Outfit, sans-serif';
+    ctx.fillText(m.l, 52+mw*i+mw/2, metaY+50);
+  });
+
+  // Technique box
+  const techY = metaY + 78;
+  ctx.fillStyle = cardStyle==='cream'?'rgba(138,106,48,0.07)':cardStyle==='minimal'?'#f5f5f5':'rgba(201,162,39,0.07)';
+  roundRect(ctx, 52, techY, W-104, 72, 4); ctx.fill();
+  ctx.fillStyle = s.accent;
+  ctx.fillRect(52, techY, 3, 72);
+  ctx.fillStyle = s.accent;
+  ctx.font = 'italic 13px Lora, serif';
+  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  const techLines = wrapText(ctx, '🔪 ' + (recipe.keyTechnique||''), W-130, 13);
+  techLines.slice(0,3).forEach((l,i) => ctx.fillText(l, 66, techY+24+i*22));
+
+  // Ingredients
+  const ingY = techY + 92;
+  ctx.fillStyle = s.muted;
+  ctx.font = '600 9px Outfit, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('INGREDIENTS', 52, ingY);
+  ctx.fillStyle = s.divider;
+  ctx.fillRect(52, ingY+8, W-104, 1);
+
+  const ings = (recipe.ingredients||[]).slice(0,9);
+  const half = Math.ceil(ings.length/2);
+  const colW = (W-120)/2;
+  ings.forEach((ing,i) => {
+    const col = i<half ? 0 : 1;
+    const row = i<half ? i : i-half;
+    const x = 52 + col*(colW+16);
+    const y = ingY + 28 + row*28;
+    ctx.fillStyle = s.text;
+    ctx.font = '300 13px Outfit, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(ing.name, x, y);
+    ctx.fillStyle = s.muted;
+    ctx.font = '400 11px Outfit, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(ing.amount, x+colW, y);
+    ctx.fillStyle = s.divider;
+    ctx.fillRect(x, y+6, colW, 0.5);
+  });
+
+  // Chef tip
+  const tipY = H-96;
+  ctx.fillStyle = cardStyle==='minimal'?'#f5f5f5':cardStyle==='cream'?'rgba(138,106,48,0.06)':'rgba(201,162,39,0.07)';
+  roundRect(ctx, 52, tipY, W-104, 54, 4); ctx.fill();
+  ctx.fillStyle = s.accent;
+  ctx.font = 'italic 13px Lora, serif';
+  ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  const tipLines = wrapText(ctx, '"'+recipe.chefTip+'"', W-120, 13);
+  tipLines.slice(0,2).forEach((l,i) => ctx.fillText(l, 66, tipY+18+i*20));
+
+  // Footer
+  ctx.fillStyle = s.footerBg;
+  ctx.fillRect(0, H-36, W, 36);
+  ctx.fillStyle = s.divider;
+  ctx.fillRect(0, H-36, W, 1);
+  ctx.fillStyle = s.muted;
+  ctx.font = '500 10px Outfit, sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('MISE EN PLACE  ·  RESTAURANT QUALITY AT HOME', W/2, H-18);
+
+  // Bottom bar
+  ctx.fillStyle = s.accent;
+  ctx.fillRect(0, H-4, W, 4);
+
+  const link = document.createElement('a');
+  link.download = `mise-en-place-${recipe.title.toLowerCase().replace(/\s+/g,'-')}-${cardStyle}.png`;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+  showToast(`Card downloaded — ${cardStyle} style`);
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────
+async function callClaude(prompt) {
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({model:"claude-sonnet-4-20250514", max_tokens:1000, messages:[{role:"user",content:prompt}]})
+  });
+  const data = await res.json();
+  return data.content?.find(b=>b.type==='text')?.text || '[]';
+}
+
+function showSkel(id, n) {
+  const g = document.createElement('div'); g.className='r-grid';
+  g.innerHTML = Array(n).fill(`<div class="r-card" style="pointer-events:none"><div class="sk" style="height:9px;width:80px;margin-bottom:12px"></div><div class="sk" style="height:26px;width:75%;margin-bottom:8px"></div><div class="sk" style="height:12px;width:90%;margin-bottom:4px"></div><div class="sk" style="height:12px;width:60%;margin-bottom:18px"></div><div class="sk" style="height:56px;margin-bottom:14px"></div><div style="display:flex;gap:8px"><div class="sk" style="height:34px;flex:1"></div><div class="sk" style="height:34px;flex:1"></div></div></div>`).join('');
+  document.getElementById(id).innerHTML=''; document.getElementById(id).appendChild(g);
+}
+
+function updateSavedRecipeList() {
+  const el = document.getElementById('savedRecipeList');
+  if (!allRecipes.length) return;
+  el.innerHTML = allRecipes.map((r,i) => `
+    <div style="padding:10px 12px;background:var(--s2);border:1px solid var(--border2);border-radius:4px;margin-bottom:6px;cursor:pointer;transition:all 0.2s;font-size:12px;color:var(--text2)" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border2)'" onclick="makeCard(${i})">
+      ${r.emoji||'✦'} ${r.title}
+    </div>`).join('');
+}
+
+function exportMenuCard() { showToast('Menu card export coming in v2 — building now!'); }
+
+function wrapText(ctx, text, maxWidth, size) {
+  const words = text.split(' '); const lines = []; let line='';
+  words.forEach(w => {
+    const test = line ? line+' '+w : w;
+    if(ctx.measureText(test).width > maxWidth && line) { lines.push(line); line=w; }
+    else line=test;
+  });
+  if(line) lines.push(line);
+  return lines;
+}
+
+function roundRect(ctx,x,y,w,h,r) {
+  ctx.beginPath(); ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y);
+  ctx.quadraticCurveTo(x+w,y,x+w,y+r); ctx.lineTo(x+w,y+h-r);
+  ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h); ctx.lineTo(x+r,y+h);
+  ctx.quadraticCurveTo(x,y+h,x,y+h-r); ctx.lineTo(x,y+r);
+  ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
+}
+
+function showToast(m) {
+  const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2400);
+}
+
+function getDemoRecipes() {
+  return [{
+    title:"Seared Scallops, Pea Velouté", subtitle:"Caramelised sweetness against spring silk", cuisine:"Modern British",
+    stars:2, difficulty:"Intermediate", totalTime:25, serves:2, emoji:"🥮",
+    keyTechnique:"Achieving Maillard crust on scallops demands absolute dryness and a smoking pan. Moisture creates steam — steam creates no colour, no flavour.",
+    chefTip:"Never move the scallop once it touches the pan. 90 seconds untouched creates the crust that defines this dish.",
+    ingredients:[{name:"King scallops",amount:"6, roe on"},{name:"Frozen peas",amount:"300g"},{name:"Pancetta",amount:"60g lardons"},{name:"Double cream",amount:"50ml"},{name:"Unsalted butter",amount:"30g"},{name:"Lemon",amount:"½, juice"},{name:"Clarified butter",amount:"2 tbsp"},{name:"Shallot",amount:"1, diced"}],
+    steps:[
+      {text:"Pat scallops bone dry on kitchen paper for 20+ minutes. Season with fine salt only at the very last moment before cooking — early salting draws out moisture.",stage:"Prep",timerMinutes:null,sensoryCues:[{type:"touch",cue:"Scallops should feel firm and completely dry, not tacky or damp"},{type:"sight",cue:"The surface should look matte, not glossy — any sheen means moisture remains"}]},
+      {text:"Render pancetta slowly in a cold pan until deeply crisp. Remove and reserve fat in the pan. Blanch peas in boiling salted water for 2 minutes, drain immediately and blend with butter and cream until completely smooth. Pass through a fine sieve.",stage:"The velouté",timerMinutes:8,sensoryCues:[{type:"sight",cue:"Pea purée should be a vivid, electric green — this brightness fades fast, so work quickly"},{type:"smell",cue:"Sweet, fresh pea aroma should fill the room — if it smells cooked, you've gone too far"}]},
+      {text:"Heat clarified butter in a heavy pan until just beginning to smoke. Add scallops flat-side down. Do not touch them for 90 seconds — any movement tears the forming crust.",stage:"The sear",timerMinutes:3,sensoryCues:[{type:"sound",cue:"An aggressive sizzle that settles to a steady crackle — silence means the pan is too cold"},{type:"sight",cue:"Watch the golden colour creep up the side of each scallop — flip when it reaches halfway"}]},
+      {text:"Flip scallops, add cold butter, baste for 40 seconds. They should be 60% opaque — the centre should still feel slightly yielding when pressed. Plate immediately: swoosh of velouté, three scallops, scatter pancetta, lemon, pan juices.",stage:"Finish & plate",timerMinutes:1,sensoryCues:[{type:"touch",cue:"The scallop should have slight resistance at centre — fully firm means overcooked"},{type:"sight",cue:"A pool of green, three amber rounds, flecks of pancetta — contrast is the composition"}]}
+    ]
+  }];
+}
+
+function getDemoMenu() {
+  return {
+    menuName:"An Evening in Burgundy", menuDescription:"A menu built on classical French foundations with modern restraint. Richness blooms gradually — clean and bright at the start, deeply satisfying at the close.",
+    pairingScore:94, pairingReason:"The citrus-dressed crab lightens the palate for the rich duck confit, while the dark chocolate fondant echoes the wine notes of the bigarade sauce. Each course prepares you perfectly for the next.",
+    flavorJourney:"Bright acidity opens, savory depth builds through the main, bittersweet chocolate closes with echo notes of orange.",
+    proteinBalance:"Shellfish starter, poultry main, and egg-based dessert — three distinct proteins with no repetition.",
+    richnessNote:"Richness escalates deliberately: light crab, unctuous confit, and finally the fondant's bittersweet intensity.",
+    starter:{title:"Dressed Crab, Cucumber Gazpacho",subtitle:"Delicate sweetness in a pool of cold clarity",emoji:"🦀",cuisine:"French",prepTime:20,cookTime:0,serves:2,description:"White crab meat dressed with lemon and tarragon, served in chilled cucumber gazpacho with a quenelle of brown crab butter."},
+    main:{title:"Duck Confit, Sauce Bigarade",subtitle:"Glass skin, bitter orange, silken thigh",emoji:"🦆",cuisine:"French",prepTime:30,cookTime:120,serves:2,description:"Thigh confited for two hours in rendered duck fat, finished with a dramatic pan sear and Seville orange reduction mounted with cold butter."},
+    dessert:{title:"Dark Chocolate Fondant, Orange Cream",subtitle:"Bitter warmth meets citrus cool",emoji:"🍫",cuisine:"French",prepTime:20,cookTime:12,serves:2,description:"72% dark chocolate fondant with a liquid molten centre, served with cold orange mascarpone cream and candied zest."}
+  };
+}
+</script>
+</body>
+</html>
