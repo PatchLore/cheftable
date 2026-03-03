@@ -1,3 +1,43 @@
+# ChefTable — AI Recipe Generator
+
+## What it does
+Michelin-level recipe generation via Claude API. Select cuisine, skill level, occasion → get structured recipes with ingredients, steps, chef tips.
+
+## Tech Stack
+- Next.js 14 (App Router)
+- TypeScript
+- Tailwind CSS
+- NextAuth (Google OAuth)
+- Anthropic Claude API
+- Prisma (stubbed, ready for schema)
+
+## Live Demo
+https://chef-table-six.vercel.app
+
+## Features
+- ✅ Google OAuth authentication
+- ✅ AI recipe generation (Claude API)
+- ✅ Responsive dark/gold UI
+- ⚠️ Database persistence (stubbed — add Prisma schema to enable saves)
+- ⚠️ Voice features (marked "Coming Soon" — easy win for buyer)
+
+## Environment Variables
+CLAUDE_API_KEY=your_anthropic_key
+GOOGLE_CLIENT_ID=xxx
+GOOGLE_CLIENT_SECRET=xxx
+NEXTAUTH_SECRET=random_string
+NEXTAUTH_URL=http://localhost:3000
+
+## Run Locally
+npm install
+npm run dev
+
+## Sale Notes
+Selling as working MVP. Database stubbed intentionally — buyer adds persistence layer. Voice features ready for Whisper integration.
+
+## Contact
+acquisitions@stackdrip.dev
+
 # Mise en Place — Your AI Chef
 
 A Next.js 14 application that converts the original single-page HTML "Mise en Place — Your AI Chef" into a modern, deployable web application with authentication, database storage, and API routes.
