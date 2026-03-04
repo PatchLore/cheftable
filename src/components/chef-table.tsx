@@ -29,6 +29,13 @@ export default function ChefTable() {
   const [count, setCount] = useState("6")
 
   const generateRecipes = async () => {
+    console.log("ChefTable generate click params:", {
+      cuisine,
+      skill,
+      occasion,
+      count,
+    })
+
     setLoading(true)
     try {
       const prompt = `Generate ${count} Michelin-quality recipes for a ${skill} cooking a ${occasion}. Cuisine: ${cuisine}.
@@ -52,6 +59,7 @@ Return ONLY valid JSON array.`
       })
 
       const data = await response.json()
+      console.log("ChefTable API raw result:", data)
       const parsedRecipes = JSON.parse(data.result.replace(/```json|```/g, '').trim())
       setRecipes(parsedRecipes)
     } catch (error) {

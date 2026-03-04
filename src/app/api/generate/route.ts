@@ -4,6 +4,8 @@ export async function POST(request: NextRequest) {
   try {
     const { prompt } = await request.json()
 
+    console.log("[/api/generate] Received body:", { prompt })
+
     if (!prompt) {
       return NextResponse.json(
         { error: "Prompt is required" },
@@ -11,17 +13,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Claude API call
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    // Groq API call
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": process.env.CLAUDE_API_KEY!,
-        "anthropic-version": "2023-06-01",
+        Authorization: `Bearer ${process.env.GROQ_API_KEY!}`,
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 1000,
+        model: "llama-3.1-8b-instant",
+        temperature: 0.7,
         messages: [
           {
             role: "user",
@@ -35,8 +36,10 @@ export async function POST(request: NextRequest) {
       throw new Error(`Claude API error: ${response.status}`)
     }
 
-    const data = await response.json()
-    const result = data.content?.find((b: any) => b.type === "text")?.text || ""
+    const data: any = await response.json()
+    const result: string = data?.choices?.[0]?.message?.content ?? ""
+
+    console.log("[/api/generate] Groq result length:", result?.length)
 
     return NextResponse.json({ result })
   } catch (error) {
