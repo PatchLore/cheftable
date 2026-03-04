@@ -4,6 +4,7 @@ import { useState } from "react"
 import Card from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Loader2 } from "lucide-react"
+import VoiceChef from "@/components/voice-chef"
 
 interface Recipe {
   title: string
@@ -29,6 +30,7 @@ export default function ChefTable() {
   const [count, setCount] = useState("6")
   const [expandedId, setExpandedId] = useState<number | null>(null)
   const [cardRecipe, setCardRecipe] = useState<Recipe | null>(null)
+  const [voiceRecipe, setVoiceRecipe] = useState<Recipe | null>(null)
 
   const generateRecipes = async () => {
     console.log("ChefTable generate click params:", {
@@ -247,6 +249,7 @@ export default function ChefTable() {
                     className="btn-outline"
                     onClick={(e) => {
                       e.stopPropagation()
+                      setVoiceRecipe(recipe)
                     }}
                   >
                     🎙 Voice Cook
@@ -272,6 +275,12 @@ export default function ChefTable() {
           </div>
         )}
       </div>
+      {voiceRecipe && (
+        <VoiceChef
+          recipe={voiceRecipe}
+          onClose={() => setVoiceRecipe(null)}
+        />
+      )}
       {cardRecipe && (
         <div className="menu-modal">
           <div className="menu-card">
