@@ -12,9 +12,8 @@ export async function POST(request: NextRequest) {
     }
 
     const sessionId = Math.random().toString(36).slice(2)
-    const safeCount = Math.min(Number(count), 3)
 
-    const prompt = `You are a world-class chef. Generate exactly ${safeCount} UNIQUE ${cuisine} recipes for ${skill} level cooks, suitable for ${occasion}.
+    const prompt = `You are a world-class chef. Generate exactly ${count} UNIQUE ${cuisine} recipes for ${skill} level cooks, suitable for ${occasion}.
 Each recipe MUST be completely different from the others. Do not repeat any dish names, ingredients, or cooking techniques.
 Session ID: ${sessionId} (use this to ensure uniqueness).
 
@@ -45,7 +44,7 @@ Return STRICT JSON only.`
         model: "llama-3.3-70b-versatile",
         temperature: 1.0,
         top_p: 0.95,
-        max_tokens: 2000,
+        max_tokens: 8000,
         messages: [{ role: "user", content: prompt }],
       }),
     })
