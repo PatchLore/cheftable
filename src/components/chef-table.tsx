@@ -89,6 +89,24 @@ export default function ChefTable() {
         </p>
       </div>
 
+      <div className="how-it-works">
+        <div className="how-step">
+          <span className="how-emoji">🎯</span>
+          <span className="how-label">Choose your preferences</span>
+          <span className="how-desc">Select cuisine, skill level, occasion and recipe count</span>
+        </div>
+        <div className="how-step">
+          <span className="how-emoji">✨</span>
+          <span className="how-label">Generate your menu</span>
+          <span className="how-desc">Our AI creates Michelin-level recipes unique to you</span>
+        </div>
+        <div className="how-step">
+          <span className="how-emoji">🎙</span>
+          <span className="how-label">Cook with confidence</span>
+          <span className="how-desc">Follow voice-guided steps or print your menu card</span>
+        </div>
+      </div>
+
       <div className="ctrl-bar">
         <div className="ctrl">
           <label className="label">Cuisine</label>
