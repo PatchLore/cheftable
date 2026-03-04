@@ -38,9 +38,9 @@ Selling as working MVP. Database stubbed intentionally — buyer adds persistenc
 ## Contact
 acquisitions@stackdrip.dev
 
-# Mise en Place — Your AI Chef
+# ChefTable — Your AI Chef
 
-A Next.js 14 application that converts the original single-page HTML "Mise en Place — Your AI Chef" into a modern, deployable web application with authentication, database storage, and API routes.
+A Next.js 14 application that converts the original single-page HTML "ChefTable — Your AI Chef" into a modern, deployable web application with authentication, database storage, and API routes.
 
 ## Features
 

@@ -11,7 +11,7 @@ export default function Home() {
       <div className="min-h-screen bg-[#0a0908] text-[#ede8e0] flex flex-col">
         <nav className="h-16 flex items-center justify-between px-12 border-b border-[#2e2b26]">
           <div className="text-[#c9a227] font-serif text-xl font-bold tracking-widest">
-            Mise <span className="text-[#ede8e0] font-normal">en Place</span>
+            ChefTable
           </div>
         </nav>
         <main className="flex-1 flex flex-col items-center justify-center px-4">
@@ -36,7 +36,7 @@ export default function Home() {
     <div className="min-h-screen bg-[#0a0908] text-[#ede8e0]">
       <nav className="h-16 flex items-center justify-between px-12 border-b border-[#2e2b26]">
         <div className="text-[#c9a227] font-serif text-xl font-bold tracking-widest">
-          Mise <span className="text-[#ede8e0] font-normal">en Place</span>
+          ChefTable
         </div>
         <div className="flex items-center gap-6">
           <Link href="/dashboard" className="text-[#ede8e0] hover:text-[#c9a227]">

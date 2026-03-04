@@ -3,7 +3,7 @@ import "./globals.css"
 import { Providers } from "@/components/providers"
 
 export const metadata: Metadata = {
-  title: "Mise en Place — Your AI Chef",
+  title: "ChefTable — Your AI Chef",
   description: "Michelin-level recipes generated for your skill and cuisine.",
 }
 
