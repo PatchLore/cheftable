@@ -151,6 +151,48 @@ body {
   @apply flex flex-wrap gap-3 mt-auto;
 }
 
+.r-detail-section {
+  @apply text-sm;
+}
+
+.r-detail-title {
+  @apply text-xs font-semibold tracking-[0.18em] uppercase mb-2;
+  color: var(--text-muted);
+}
+
+.r-detail-list {
+  @apply space-y-1;
+}
+
+.r-detail-steps {
+  @apply space-y-3 text-sm;
+}
+
+.r-step-stage {
+  @apply text-[11px] font-semibold tracking-[0.18em] uppercase mb-1;
+  color: var(--gold);
+}
+
+.r-step-text {
+  @apply text-sm leading-relaxed;
+  color: var(--text);
+}
+
+.r-step-cues {
+  @apply mt-1 space-y-0.5 text-[11px];
+  color: var(--text-muted);
+}
+
+.r-detail-strong {
+  @apply font-medium;
+  color: var(--text);
+}
+
+.r-detail-muted {
+  @apply text-xs ml-1;
+  color: var(--text-muted);
+}
+
 .empty {
   @apply flex flex-col items-center justify-center rounded-xl border border-dashed py-16 text-center;
   background-color: rgba(20, 19, 16, 0.55);
@@ -176,4 +218,68 @@ body {
 .sk {
   @apply rounded-md animate-pulse;
   background-color: #1a1814;
+}
+
+.menu-modal {
+  @apply fixed inset-0 z-50 flex items-center justify-center px-4;
+  background: radial-gradient(circle at top, rgba(201, 162, 39, 0.08), transparent),
+    rgba(5, 4, 3, 0.92);
+}
+
+.menu-card {
+  @apply w-full max-w-3xl rounded-2xl border px-8 py-7 md:px-10 md:py-9;
+  background-color: var(--bg);
+  border-color: var(--border-subtle);
+  box-shadow: 0 26px 80px rgba(0, 0, 0, 0.85);
+}
+
+.menu-card-header {
+  @apply flex items-center justify-between text-xs mb-4;
+  color: var(--text-muted);
+}
+
+.menu-card-tag {
+  @apply inline-flex items-center rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.18em];
+  background-color: #1a1814;
+  color: var(--gold);
+}
+
+.menu-card-meta {
+  @apply flex items-center gap-3 text-[11px] uppercase tracking-[0.18em];
+}
+
+.menu-card-title {
+  @apply text-2xl md:text-3xl font-serif font-bold mb-1;
+  color: var(--text);
+}
+
+.menu-card-sub {
+  @apply text-sm mb-6 max-w-2xl;
+  color: var(--text-muted);
+}
+
+.menu-card-body {
+  @apply grid gap-8 md:grid-cols-2 mb-6;
+}
+
+.menu-card-col h3 {
+  @apply text-xs font-semibold tracking-[0.18em] uppercase mb-3;
+  color: var(--text-muted);
+}
+
+.menu-card-col ul {
+  @apply space-y-1 text-sm;
+}
+
+.menu-card-col ol {
+  @apply space-y-2 text-sm;
+}
+
+.menu-card-tip {
+  @apply border-t pt-4 mt-2 text-sm;
+  border-color: var(--border-subtle);
+}
+
+.menu-card-actions {
+  @apply mt-6 flex justify-end gap-3;
 }

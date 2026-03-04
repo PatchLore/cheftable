@@ -27,6 +27,8 @@ export default function ChefTable() {
   const [skill, setSkill] = useState("intermediate")
   const [occasion, setOccasion] = useState("dinner party")
   const [count, setCount] = useState("6")
+  const [expandedId, setExpandedId] = useState<number | null>(null)
+  const [cardRecipe, setCardRecipe] = useState<Recipe | null>(null)
 
   const generateRecipes = async () => {
     console.log("ChefTable generate click params:", {
@@ -52,7 +54,7 @@ export default function ChefTable() {
         throw new Error(data?.error ?? "API returned no result")
       }
 
-      const cleaned = data.result.replace(/```json|```/g, '').trim()
+      const cleaned = data.result.replace(/```json|```/g, "").trim()
       const parsedRecipes = JSON.parse(cleaned)
       console.log("New recipes:", parsedRecipes.map((r: Recipe) => r.title))
       setRecipes(parsedRecipes)
@@ -169,7 +171,13 @@ export default function ChefTable() {
         ) : recipes.length > 0 ? (
           <div className="r-grid">
             {recipes.map((recipe, index) => (
-              <div key={index} className="card">
+              <div
+                key={index}
+                className="card cursor-pointer"
+                onClick={() =>
+                  setExpandedId(expandedId === index ? null : index)
+                }
+              >
                 <div className="r-top">
                   <div className="r-cuisine">{recipe.cuisine}</div>
                   <div className="r-stars">{'✦'.repeat(recipe.stars || 1)}</div>
@@ -182,9 +190,66 @@ export default function ChefTable() {
                   <span className="r-met">📊 <b>{recipe.difficulty}</b></span>
                 </div>
                 <div className="r-tech">🔪 {recipe.keyTechnique}</div>
+                <div className={`r-detail overflow-hidden transition-all duration-300 ${expandedId === index ? "max-h-[900px] mt-4" : "max-h-0"}`}>
+                  <div className="r-detail-section">
+                    <h4 className="r-detail-title">Ingredients</h4>
+                    <ul className="r-detail-list">
+                      {recipe.ingredients.map((ing, i) => (
+                        <li key={i}>
+                          <span className="r-detail-strong">{ing.name}</span>
+                          <span className="r-detail-muted">{ing.amount}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="r-detail-section mt-4">
+                    <h4 className="r-detail-title">Method</h4>
+                    <ol className="r-detail-steps">
+                      {recipe.steps.map((step, i) => (
+                        <li key={i}>
+                          {step.stage && (
+                            <div className="r-step-stage">{step.stage}</div>
+                          )}
+                          <p className="r-step-text">{step.text}</p>
+                          {step.sensoryCues && step.sensoryCues.length > 0 && (
+                            <ul className="r-step-cues">
+                              {step.sensoryCues.map((cue, j) => (
+                                <li key={j}>
+                                  <span className="r-detail-strong">{cue.type}:</span>{" "}
+                                  <span className="r-detail-muted">{cue.cue}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                  {recipe.chefTip && (
+                    <div className="r-detail-section mt-4">
+                      <h4 className="r-detail-title">Chef’s tip</h4>
+                      <p className="r-step-text">{recipe.chefTip}</p>
+                    </div>
+                  )}
+                </div>
                 <div className="r-actions">
-                  <Button className="btn-outline">🎙 Voice Cook</Button>
-                  <Button className="btn-primary">🎨 Make Card</Button>
+                  <Button
+                    className="btn-outline"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                    }}
+                  >
+                    🎙 Voice Cook
+                  </Button>
+                  <Button
+                    className="btn-primary"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setCardRecipe(recipe)
+                    }}
+                  >
+                    🎨 Make Card
+                  </Button>
                 </div>
               </div>
             ))}
@@ -197,6 +262,70 @@ export default function ChefTable() {
           </div>
         )}
       </div>
+      {cardRecipe && (
+        <div className="menu-modal">
+          <div className="menu-card">
+            <div className="menu-card-header">
+              <div className="menu-card-tag">{cardRecipe.cuisine}</div>
+              <div className="menu-card-meta">
+                <span>{cardRecipe.difficulty}</span>
+                <span>{cardRecipe.totalTime} min</span>
+                <span>Serves {cardRecipe.serves}</span>
+              </div>
+            </div>
+            <h2 className="menu-card-title">
+              {cardRecipe.emoji || ""} {cardRecipe.title}
+            </h2>
+            <p className="menu-card-sub">{cardRecipe.subtitle}</p>
+            <div className="menu-card-body">
+              <div className="menu-card-col">
+                <h3>Ingredients</h3>
+                <ul>
+                  {cardRecipe.ingredients.map((ing, i) => (
+                    <li key={i}>
+                      <span className="r-detail-strong">{ing.name}</span>{" "}
+                      <span className="r-detail-muted">{ing.amount}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="menu-card-col">
+                <h3>Method</h3>
+                <ol>
+                  {cardRecipe.steps.map((step, i) => (
+                    <li key={i}>
+                      {step.stage && (
+                        <div className="r-step-stage">{step.stage}</div>
+                      )}
+                      <p className="r-step-text">{step.text}</p>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            </div>
+            {cardRecipe.chefTip && (
+              <div className="menu-card-tip">
+                <span className="r-detail-strong">Chef’s tip:</span>{" "}
+                <span className="r-detail-muted">{cardRecipe.chefTip}</span>
+              </div>
+            )}
+            <div className="menu-card-actions">
+              <Button
+                className="btn-outline"
+                onClick={() => window.print()}
+              >
+                Print
+              </Button>
+              <Button
+                className="btn-primary"
+                onClick={() => setCardRecipe(null)}
+              >
+                Close
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
