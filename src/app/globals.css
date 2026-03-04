@@ -4,11 +4,176 @@
 
 :root {
   --bg: #0a0908;
+  --bg-elevated: #141310;
+  --border-subtle: #2e2b26;
   --gold: #c9a227;
+  --gold-soft: #e0bd3a;
   --text: #ede8e0;
+  --text-muted: #b3aa9c;
 }
 
 body {
   background-color: var(--bg);
   color: var(--text);
+}
+
+/* ChefTable dashboard layout */
+.section {
+  @apply max-w-6xl mx-auto py-10;
+}
+
+.sec-header {
+  @apply mb-8;
+}
+
+.title {
+  @apply text-3xl md:text-4xl font-serif font-bold;
+  color: var(--gold);
+}
+
+.title em {
+  @apply not-italic;
+  color: var(--text);
+}
+
+.subtitle {
+  @apply mt-2 text-sm md:text-base max-w-2xl;
+  color: var(--text-muted);
+}
+
+.ctrl-bar {
+  @apply mt-8 flex flex-col gap-4 md:flex-row md:items-end md:gap-6 rounded-xl border px-5 py-4 md:px-6 md:py-5;
+  background-color: var(--bg-elevated);
+  border-color: var(--border-subtle);
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.65);
+}
+
+.ctrl {
+  @apply flex flex-col gap-1 flex-1 min-w-[150px];
+}
+
+.label {
+  @apply text-[11px] font-medium uppercase tracking-[0.16em];
+  color: var(--text-muted);
+}
+
+.input-field {
+  @apply mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-0;
+  background-color: var(--bg-elevated);
+  border-color: var(--border-subtle);
+  color: var(--text);
+  outline: none;
+}
+
+.input-field:focus {
+  box-shadow: 0 0 0 1px var(--gold-soft), 0 0 0 4px rgba(201, 162, 39, 0.25);
+  border-color: var(--gold-soft);
+}
+
+.btn-primary {
+  @apply inline-flex items-center justify-center rounded-md text-sm font-medium px-5 py-2 transition-colors;
+  background-color: var(--gold);
+  color: #0a0908;
+}
+
+.btn-primary:hover {
+  background-color: var(--gold-soft);
+}
+
+.btn-outline {
+  @apply inline-flex items-center justify-center rounded-md text-sm font-medium px-4 py-2 border transition-colors;
+  background-color: transparent;
+  border-color: var(--border-subtle);
+  color: var(--text);
+}
+
+.btn-outline:hover {
+  background-color: rgba(20, 19, 16, 0.85);
+  border-color: var(--gold);
+}
+
+#chefResults {
+  @apply mt-10;
+}
+
+.r-grid {
+  @apply grid gap-6 md:grid-cols-2 xl:grid-cols-3;
+}
+
+.card {
+  @apply rounded-xl border p-5 flex flex-col justify-between;
+  background-color: var(--bg-elevated);
+  border-color: var(--border-subtle);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+}
+
+.r-top {
+  @apply flex items-center justify-between mb-3 text-xs uppercase tracking-[0.18em];
+  color: var(--text-muted);
+}
+
+.r-cuisine {
+  @apply text-[11px] font-medium;
+}
+
+.r-stars {
+  color: var(--gold);
+}
+
+.r-title {
+  @apply text-lg font-semibold mb-1;
+  color: var(--text);
+}
+
+.r-sub {
+  @apply text-sm mb-4;
+  color: var(--text-muted);
+}
+
+.r-meta {
+  @apply flex flex-wrap gap-3 text-xs mb-3;
+  color: var(--text-muted);
+}
+
+.r-met b {
+  @apply font-medium;
+  color: var(--text);
+}
+
+.r-tech {
+  @apply text-xs rounded-md px-3 py-2 mb-4 leading-relaxed border;
+  background-color: #1a1814;
+  border-color: var(--border-subtle);
+  color: var(--text);
+}
+
+.r-actions {
+  @apply flex flex-wrap gap-3 mt-auto;
+}
+
+.empty {
+  @apply flex flex-col items-center justify-center rounded-xl border border-dashed py-16 text-center;
+  background-color: rgba(20, 19, 16, 0.55);
+  border-color: var(--border-subtle);
+}
+
+.empty-icon {
+  @apply w-10 h-10 mb-4 flex items-center justify-center rounded-full text-xl;
+  background-color: #1f1c17;
+  color: var(--gold);
+}
+
+.empty h3 {
+  @apply text-lg font-semibold mb-1;
+  color: var(--text);
+}
+
+.empty p {
+  @apply text-sm;
+  color: var(--text-muted);
+}
+
+.sk {
+  @apply rounded-md animate-pulse;
+  background-color: #1a1814;
 }
