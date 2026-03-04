@@ -38,29 +38,18 @@ export default function ChefTable() {
 
     setLoading(true)
     try {
-      const prompt = `Generate ${count} Michelin-quality recipes for a ${skill} cooking a ${occasion}. Cuisine: ${cuisine}.
-
-Return JSON array, each item:
-- title, subtitle (poetic 1-line), cuisine, stars (1-3), difficulty ("Approachable"|"Intermediate"|"Advanced")
-- totalTime (number, minutes), serves (number), emoji
-- keyTechnique (2 sentences: what it is + why it elevates this dish)
-- chefTip (1 sharp insider sentence)
-- ingredients: [{name, amount}] (8-12 items)
-- steps: [{text (2-4 sentences, precise), stage, timerMinutes (or null), sensoryCues:[{type:"sight"|"sound"|"smell"|"touch", cue}]}]
-
-Return ONLY valid JSON array.`
-
       const response = await fetch("/api/generate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ prompt }),
+        body: JSON.stringify({ cuisine, skill, occasion, count }),
       })
 
       const data = await response.json()
       console.log("ChefTable API raw result:", data)
       const parsedRecipes = JSON.parse(data.result.replace(/```json|```/g, '').trim())
+      console.log("New recipes:", parsedRecipes.map((r: Recipe) => r.title))
       setRecipes(parsedRecipes)
     } catch (error) {
       console.error("Error generating recipes:", error)

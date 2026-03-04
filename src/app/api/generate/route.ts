@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,7 +11,28 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const prompt = `Generate ${count} ${cuisine} recipes for ${skill} level cooks, suitable for ${occasion}. Return a JSON array of recipes. Each recipe should have: title, subtitle, cuisine, difficulty, time, serves, ingredients (array), steps (array with detailed instructions), and a chef tip. Make it Michelin-level quality with sensory details.`;
+    const sessionId = Math.random().toString(36).slice(2)
+
+    const prompt = `You are a world-class chef. Generate exactly ${count} UNIQUE ${cuisine} recipes for ${skill} level cooks, suitable for ${occasion}.
+Each recipe MUST be completely different from the others. Do not repeat any dish names, ingredients, or cooking techniques.
+Session ID: ${sessionId} (use this to ensure uniqueness).
+
+Return ONLY a valid JSON array with no markdown and no explanation.
+Each recipe object must have:
+- title (string)
+- subtitle (string, poetic one-liner)
+- cuisine (string)
+- stars (number, 1-3)
+- difficulty (\"Approachable\" | \"Intermediate\" | \"Advanced\")
+- totalTime (number, minutes)
+- serves (number)
+- emoji (string, optional)
+- keyTechnique (2 sentences: what the technique is and why it elevates this dish)
+- chefTip (1 sharp insider sentence)
+- ingredients: array of objects { "name": string, "amount": string } (8-12 items)
+- steps: array of objects { "text": string, "stage": string, "timerMinutes": number | null, "sensoryCues": [{ "type": "sight" | "sound" | "smell" | "touch", "cue": string }] }.
+
+Return STRICT JSON only.`
 
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
@@ -21,7 +42,8 @@ export async function POST(request: NextRequest) {
       },
       body: JSON.stringify({
         model: "llama-3.1-8b-instant",
-        temperature: 0.7,
+        temperature: 1.0,
+        top_p: 0.95,
         messages: [{ role: "user", content: prompt }],
       }),
     })
