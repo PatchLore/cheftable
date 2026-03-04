@@ -42,7 +42,7 @@ Return STRICT JSON only.`
         Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "llama3-70b-8192",
+        model: "llama-3.3-70b-versatile",
         temperature: 1.0,
         top_p: 0.95,
         max_tokens: 2000,
