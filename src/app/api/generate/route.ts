@@ -49,7 +49,9 @@ Return STRICT JSON only.`
     })
 
     if (!response.ok) {
-      throw new Error(`Groq API error: ${response.status}`)
+      const errorBody = await response.text()
+      console.error("Groq error body:", errorBody)
+      throw new Error(`Groq API error: ${response.status} - ${errorBody}`)
     }
 
     const data = await response.json()
@@ -57,19 +59,7 @@ Return STRICT JSON only.`
 
     return NextResponse.json({ result })
   } catch (error) {
-    console.error("Error generating recipe:", error)
-    return NextResponse.json({ 
-      result: JSON.stringify([{
-        title: "Demo Recipe",
-        subtitle: "API Error - Using Fallback",
-        cuisine: "Generic",
-        difficulty: "Easy",
-        time: "30 mins",
-        serves: 2,
-        ingredients: ["Ingredient 1", "Ingredient 2"],
-        steps: ["Step 1", "Step 2"],
-        chefTip: "Check API configuration"
-      }])
-    })
+    console.error("Generate route error:", error)
+    return NextResponse.json({ error: String(error) }, { status: 500 })
   }
 }
