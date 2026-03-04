@@ -48,7 +48,12 @@ export default function ChefTable() {
 
       const data = await response.json()
       console.log("ChefTable API raw result:", data)
-      const parsedRecipes = JSON.parse(data.result.replace(/```json|```/g, '').trim())
+      if (!data || typeof data.result !== "string") {
+        throw new Error(data?.error ?? "API returned no result")
+      }
+
+      const cleaned = data.result.replace(/```json|```/g, '').trim()
+      const parsedRecipes = JSON.parse(cleaned)
       console.log("New recipes:", parsedRecipes.map((r: Recipe) => r.title))
       setRecipes(parsedRecipes)
     } catch (error) {
