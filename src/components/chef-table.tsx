@@ -55,7 +55,17 @@ export default function ChefTable() {
       }
 
       const cleaned = data.result.replace(/```json|```/g, "").trim()
-      const parsedRecipes = JSON.parse(cleaned)
+      let parsed = JSON.parse(cleaned)
+      // Handle cases where Groq wraps the array in an object
+      if (!Array.isArray(parsed)) {
+        parsed =
+          parsed.recipes ??
+          parsed.data ??
+          parsed.result ??
+          Object.values(parsed)[0] ??
+          []
+      }
+      const parsedRecipes: Recipe[] = Array.isArray(parsed) ? parsed : [parsed]
       console.log("New recipes:", parsedRecipes.map((r: Recipe) => r.title))
       setRecipes(parsedRecipes)
     } catch (error) {
