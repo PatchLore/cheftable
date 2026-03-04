@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     }
 
     const sessionId = Math.random().toString(36).slice(2)
-    const safeCount = Math.min(Number(count), 6)
+    const safeCount = Math.min(Number(count), 3)
 
     const prompt = `You are a world-class chef. Generate exactly ${safeCount} UNIQUE ${cuisine} recipes for ${skill} level cooks, suitable for ${occasion}.
 Each recipe MUST be completely different from the others. Do not repeat any dish names, ingredients, or cooking techniques.
@@ -31,7 +31,7 @@ Each recipe object must have:
 - keyTechnique (2 sentences: what the technique is and why it elevates this dish)
 - chefTip (1 sharp insider sentence)
 - ingredients: array of objects { "name": string, "amount": string } (8-12 items)
-- steps: array of objects { "text": string, "stage": string, "timerMinutes": number | null, "sensoryCues": [{ "type": "sight" | "sound" | "smell" | "touch", "cue": string }] }.
+- steps: array of objects { "text": string, "timerMinutes": number | null }.
 
 Return STRICT JSON only.`
 
@@ -42,10 +42,10 @@ Return STRICT JSON only.`
         Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "llama-3.1-8b-instant",
+        model: "llama3-70b-8192",
         temperature: 1.0,
         top_p: 0.95,
-        max_tokens: 4000,
+        max_tokens: 2000,
         messages: [{ role: "user", content: prompt }],
       }),
     })
@@ -58,6 +58,8 @@ Return STRICT JSON only.`
 
     const data = await response.json()
     const result = data?.choices?.[0]?.message?.content ?? ""
+    console.log("Groq raw result length:", result.length)
+    console.log("Groq raw result preview:", result.slice(0, 200))
 
     return NextResponse.json({ result })
   } catch (error) {
